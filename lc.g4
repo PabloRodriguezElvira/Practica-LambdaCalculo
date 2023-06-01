@@ -6,16 +6,17 @@ root : expr
 
 expr : '('expr')'                    # expresion
     | expr expr                      # aplicacion 
-    | ('λ'|'\\') Var+ ('.') expr     # abstraccion 
+    | ('λ'|'\\') vars ('.') expr     # abstraccion 
     | Var                            # variable 
     // | Nombre                         # nombremacro
     ;
 
-Var : [a-z];                               
+vars : Var+;
+Var : [a-z];
 
 // comb: Nombre ('≡'|'=') expr          # macro
 //     ;
 
-// Nombre : [A-Z] [a-zA-Z0-9]*;
+// ombre : [A-Z] [a-zA-Z0-9]*;
 
 WS : [ \t\n\r]+ -> skip;

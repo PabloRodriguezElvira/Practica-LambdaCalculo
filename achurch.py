@@ -46,8 +46,6 @@ class LCTreeVisitor(lcVisitor):
     def visitAbstraccion(self, ctx):
         [_, params, _, term] = list(ctx.getChildren())
         paramsText = params.getText()
-        paramsList = paramsText.split()
-        print(paramsList)
         termino = self.visit(term)
 
         # Si la abstracción tiene más de un parámetro, tenemos que encadenar abstracciones.

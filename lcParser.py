@@ -10,16 +10,17 @@ else:
 
 def serializedATN():
     return [
-        4,1,7,30,2,0,7,0,2,1,7,1,1,0,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,4,1,
-        14,8,1,11,1,12,1,15,1,1,1,1,1,1,3,1,21,8,1,1,1,1,1,5,1,25,8,1,10,
-        1,12,1,28,9,1,1,1,0,1,2,2,0,2,0,1,1,0,3,4,31,0,4,1,0,0,0,2,20,1,
-        0,0,0,4,5,3,2,1,0,5,1,1,0,0,0,6,7,6,1,-1,0,7,8,5,1,0,0,8,9,3,2,1,
-        0,9,10,5,2,0,0,10,21,1,0,0,0,11,13,7,0,0,0,12,14,5,6,0,0,13,12,1,
-        0,0,0,14,15,1,0,0,0,15,13,1,0,0,0,15,16,1,0,0,0,16,17,1,0,0,0,17,
-        18,5,5,0,0,18,21,3,2,1,2,19,21,5,6,0,0,20,6,1,0,0,0,20,11,1,0,0,
-        0,20,19,1,0,0,0,21,26,1,0,0,0,22,23,10,3,0,0,23,25,3,2,1,4,24,22,
-        1,0,0,0,25,28,1,0,0,0,26,24,1,0,0,0,26,27,1,0,0,0,27,3,1,0,0,0,28,
-        26,1,0,0,0,3,15,20,26
+        4,1,7,34,2,0,7,0,2,1,7,1,2,2,7,2,1,0,1,0,1,1,1,1,1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1,1,1,3,1,20,8,1,1,1,1,1,5,1,24,8,1,10,1,12,1,27,9,
+        1,1,2,4,2,30,8,2,11,2,12,2,31,1,2,0,1,2,3,0,2,4,0,1,1,0,3,4,34,0,
+        6,1,0,0,0,2,19,1,0,0,0,4,29,1,0,0,0,6,7,3,2,1,0,7,1,1,0,0,0,8,9,
+        6,1,-1,0,9,10,5,1,0,0,10,11,3,2,1,0,11,12,5,2,0,0,12,20,1,0,0,0,
+        13,14,7,0,0,0,14,15,3,4,2,0,15,16,5,5,0,0,16,17,3,2,1,2,17,20,1,
+        0,0,0,18,20,5,6,0,0,19,8,1,0,0,0,19,13,1,0,0,0,19,18,1,0,0,0,20,
+        25,1,0,0,0,21,22,10,3,0,0,22,24,3,2,1,4,23,21,1,0,0,0,24,27,1,0,
+        0,0,25,23,1,0,0,0,25,26,1,0,0,0,26,3,1,0,0,0,27,25,1,0,0,0,28,30,
+        5,6,0,0,29,28,1,0,0,0,30,31,1,0,0,0,31,29,1,0,0,0,31,32,1,0,0,0,
+        32,5,1,0,0,0,3,19,25,31
     ]
 
 class lcParser ( Parser ):
@@ -39,8 +40,9 @@ class lcParser ( Parser ):
 
     RULE_root = 0
     RULE_expr = 1
+    RULE_vars = 2
 
-    ruleNames =  [ "root", "expr" ]
+    ruleNames =  [ "root", "expr", "vars" ]
 
     EOF = Token.EOF
     T__0=1
@@ -89,7 +91,7 @@ class lcParser ( Parser ):
         self.enterRule(localctx, 0, self.RULE_root)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 4
+            self.state = 6
             self.expr(0)
         except RecognitionException as re:
             localctx.exception = re
@@ -175,14 +177,12 @@ class lcParser ( Parser ):
             super().__init__(parser)
             self.copyFrom(ctx)
 
+        def vars_(self):
+            return self.getTypedRuleContext(lcParser.VarsContext,0)
+
         def expr(self):
             return self.getTypedRuleContext(lcParser.ExprContext,0)
 
-        def Var(self, i:int=None):
-            if i is None:
-                return self.getTokens(lcParser.Var)
-            else:
-                return self.getToken(lcParser.Var, i)
 
         def accept(self, visitor:ParseTreeVisitor):
             if hasattr( visitor, "visitAbstraccion" ):
@@ -202,7 +202,7 @@ class lcParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 20
+            self.state = 19
             self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [1]:
@@ -210,55 +210,46 @@ class lcParser ( Parser ):
                 self._ctx = localctx
                 _prevctx = localctx
 
-                self.state = 7
-                self.match(lcParser.T__0)
-                self.state = 8
-                self.expr(0)
                 self.state = 9
+                self.match(lcParser.T__0)
+                self.state = 10
+                self.expr(0)
+                self.state = 11
                 self.match(lcParser.T__1)
                 pass
             elif token in [3, 4]:
                 localctx = lcParser.AbstraccionContext(self, localctx)
                 self._ctx = localctx
                 _prevctx = localctx
-                self.state = 11
+                self.state = 13
                 _la = self._input.LA(1)
                 if not(_la==3 or _la==4):
                     self._errHandler.recoverInline(self)
                 else:
                     self._errHandler.reportMatch(self)
                     self.consume()
-                self.state = 13 
-                self._errHandler.sync(self)
-                _la = self._input.LA(1)
-                while True:
-                    self.state = 12
-                    self.match(lcParser.Var)
-                    self.state = 15 
-                    self._errHandler.sync(self)
-                    _la = self._input.LA(1)
-                    if not (_la==6):
-                        break
+                self.state = 14
+                self.vars_()
 
-                self.state = 17
+                self.state = 15
                 self.match(lcParser.T__4)
-                self.state = 18
+                self.state = 16
                 self.expr(2)
                 pass
             elif token in [6]:
                 localctx = lcParser.VariableContext(self, localctx)
                 self._ctx = localctx
                 _prevctx = localctx
-                self.state = 19
+                self.state = 18
                 self.match(lcParser.Var)
                 pass
             else:
                 raise NoViableAltException(self)
 
             self._ctx.stop = self._input.LT(-1)
-            self.state = 26
+            self.state = 25
             self._errHandler.sync(self)
-            _alt = self._interp.adaptivePredict(self._input,2,self._ctx)
+            _alt = self._interp.adaptivePredict(self._input,1,self._ctx)
             while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
                 if _alt==1:
                     if self._parseListeners is not None:
@@ -266,15 +257,15 @@ class lcParser ( Parser ):
                     _prevctx = localctx
                     localctx = lcParser.AplicacionContext(self, lcParser.ExprContext(self, _parentctx, _parentState))
                     self.pushNewRecursionContext(localctx, _startState, self.RULE_expr)
-                    self.state = 22
+                    self.state = 21
                     if not self.precpred(self._ctx, 3):
                         from antlr4.error.Errors import FailedPredicateException
                         raise FailedPredicateException(self, "self.precpred(self._ctx, 3)")
-                    self.state = 23
+                    self.state = 22
                     self.expr(4) 
-                self.state = 28
+                self.state = 27
                 self._errHandler.sync(self)
-                _alt = self._interp.adaptivePredict(self._input,2,self._ctx)
+                _alt = self._interp.adaptivePredict(self._input,1,self._ctx)
 
         except RecognitionException as re:
             localctx.exception = re
@@ -282,6 +273,59 @@ class lcParser ( Parser ):
             self._errHandler.recover(self, re)
         finally:
             self.unrollRecursionContexts(_parentctx)
+        return localctx
+
+
+    class VarsContext(ParserRuleContext):
+        __slots__ = 'parser'
+
+        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+            super().__init__(parent, invokingState)
+            self.parser = parser
+
+        def Var(self, i:int=None):
+            if i is None:
+                return self.getTokens(lcParser.Var)
+            else:
+                return self.getToken(lcParser.Var, i)
+
+        def getRuleIndex(self):
+            return lcParser.RULE_vars
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitVars" ):
+                return visitor.visitVars(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+
+
+    def vars_(self):
+
+        localctx = lcParser.VarsContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 4, self.RULE_vars)
+        self._la = 0 # Token type
+        try:
+            self.enterOuterAlt(localctx, 1)
+            self.state = 29 
+            self._errHandler.sync(self)
+            _la = self._input.LA(1)
+            while True:
+                self.state = 28
+                self.match(lcParser.Var)
+                self.state = 31 
+                self._errHandler.sync(self)
+                _la = self._input.LA(1)
+                if not (_la==6):
+                    break
+
+        except RecognitionException as re:
+            localctx.exception = re
+            self._errHandler.reportError(self, re)
+            self._errHandler.recover(self, re)
+        finally:
+            self.exitRule()
         return localctx
 
 

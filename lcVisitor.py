@@ -34,5 +34,10 @@ class lcVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by lcParser#vars.
+    def visitVars(self, ctx:lcParser.VarsContext):
+        return self.visitChildren(ctx)
+
+
 
 del lcParser
