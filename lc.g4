@@ -1,22 +1,22 @@
 grammar lc;
 
 root : expr                          
-    // | comb                           
+    | comb                           
     ;
 
 expr : '('expr')'                    # expresion
     | expr expr                      # aplicacion 
     | ('λ'|'\\') vars ('.') expr     # abstraccion 
     | Var                            # variable 
-    // | Nombre                         # nombremacro
+    | Nombre                         # nombremacro
     ;
 
 vars : Var+;
 Var : [a-z];
 
-// comb: Nombre ('≡'|'=') expr          # macro
-//     ;
+comb: Nombre ('≡'|'=') expr          # macro
+    ;
 
-// ombre : [A-Z] [a-zA-Z0-9]*;
+Nombre : [A-Z] [a-zA-Z0-9]*;
 
 WS : [ \t\n\r]+ -> skip;

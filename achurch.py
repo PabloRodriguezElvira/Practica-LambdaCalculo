@@ -58,12 +58,16 @@ class LCTreeVisitor(lcVisitor):
         [letra] = list(ctx.getChildren())
         return Variable(letra.getText())
 
-    # def visitMacro(self, ctx):
-    #     [nombre, _, term] = list(ctx.getChildren())
-    #     t = self.visit(term)
-    #     Macros[nombre.getText()] = t
-    #     return "macro"
+    def visitMacro(self, ctx):
+        [nombre, _, term] = list(ctx.getChildren())
+        t = self.visit(term)
+        Macros[nombre.getText()] = t
+        return "defmacro"
 
+    def visitNombremacro(self, ctx):
+        [nameMacro] = list(ctx.getChildren())
+        t = Macros[nameMacro.getText()]
+        return self.visit(t) 
 
 
 def printMacros():
@@ -95,7 +99,16 @@ def getVariablesLigadas(tree):
             s.update(getVariablesLigadas(t2))
     return s
 
+
 def getVariablesLibres(tree):
+    s = set()
+    varsLigadas = getVariablesLigadas(tree)
+    varsLibres = getVarsLibresRec(tree)
+    # Si nos encontramos alguna variable libre que también es ligada, entonces deja de ser libre. (Ejemplo 5 Tarea 3)
+    return varsLibres - varsLigadas
+
+
+def getVarsLibresRec(tree):
     s = set()
     match tree:
         case Variable(var):
@@ -106,6 +119,7 @@ def getVariablesLibres(tree):
             s.update(getVariablesLibres(t1))
             s.update(getVariablesLibres(t2))
     return s
+    
 
 def getFreshVariable(ligadas):
     abc = "abcdefghijklmnopqrstuvwxyz"
@@ -166,15 +180,15 @@ def evaluar(tree: ArbolLC, c, md) -> ArbolLC:
         case Aplicacion(termLeft, termRight):
             match termLeft:
                 case Abstraccion(param, term):
-                    # newAbstr = alphaConversion(termLeft, termRight)
-                    # p = param
-                    # t = term
+                    newAbstr = alphaConversion(termLeft, termRight)
+                    p = param
+                    t = term
                     tOld = tree
-                    # if newAbstr != Vacio():
-                    #     p = newAbstr.var
-                    #     t = newAbstr.term
-                    #     tOld = Aplicacion(newAbstr, termRight)
-                    tSub = applyBetaRed(param, term, termRight)
+                    if newAbstr != Vacio():
+                        p = newAbstr.var
+                        t = newAbstr.term
+                        tOld = Aplicacion(newAbstr, termRight)
+                    tSub = applyBetaRed(p, t, termRight)
                     c = c+1
                     # Si llegamos al máximo número de beta-reducciones tiramos la excepcion.
                     if c == md: raise RecursionError
@@ -213,9 +227,12 @@ while True:
     if parser.getNumberOfSyntaxErrors() == 0:
         visitor = LCTreeVisitor()
         arbol = visitor.visit(tree)
-        print("Arbre:")
-        print(tree2str(arbol)) 
-        beta_reduction(arbol)
+        if (arbol == "defmacro"):
+            printMacros()
+        else:
+            print("Arbre:")
+            print(tree2str(arbol)) 
+            beta_reduction(arbol)
     else:
         print(parser.getNumberOfSyntaxErrors(), 'errors de sintaxi.')
         print(tree.toStringTree(recog=parser))

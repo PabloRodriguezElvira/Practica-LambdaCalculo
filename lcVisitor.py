@@ -19,6 +19,11 @@ class lcVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by lcParser#nombremacro.
+    def visitNombremacro(self, ctx:lcParser.NombremacroContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by lcParser#variable.
     def visitVariable(self, ctx:lcParser.VariableContext):
         return self.visitChildren(ctx)
@@ -36,6 +41,11 @@ class lcVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by lcParser#vars.
     def visitVars(self, ctx:lcParser.VarsContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by lcParser#macro.
+    def visitMacro(self, ctx:lcParser.MacroContext):
         return self.visitChildren(ctx)
 
 
