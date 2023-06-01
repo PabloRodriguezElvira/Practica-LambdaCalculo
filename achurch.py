@@ -58,7 +58,7 @@ class LCTreeVisitor(lcVisitor):
         [letra] = list(ctx.getChildren())
         return Variable(letra.getText())
 
-    def visitMacro(self, ctx):
+    def visitDefmacro(self, ctx):
         [nombre, _, term] = list(ctx.getChildren())
         t = self.visit(term)
         Macros[nombre.getText()] = t
@@ -67,7 +67,7 @@ class LCTreeVisitor(lcVisitor):
     def visitNombremacro(self, ctx):
         [nameMacro] = list(ctx.getChildren())
         t = Macros[nameMacro.getText()]
-        return self.visit(t) 
+        return t
 
 
 def printMacros():

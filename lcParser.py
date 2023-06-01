@@ -395,7 +395,7 @@ class lcParser ( Parser ):
 
 
 
-    class MacroContext(CombContext):
+    class DefmacroContext(CombContext):
 
         def __init__(self, parser, ctx:ParserRuleContext): # actually a lcParser.CombContext
             super().__init__(parser)
@@ -408,8 +408,8 @@ class lcParser ( Parser ):
 
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitMacro" ):
-                return visitor.visitMacro(self)
+            if hasattr( visitor, "visitDefmacro" ):
+                return visitor.visitDefmacro(self)
             else:
                 return visitor.visitChildren(self)
 
@@ -421,7 +421,7 @@ class lcParser ( Parser ):
         self.enterRule(localctx, 6, self.RULE_comb)
         self._la = 0 # Token type
         try:
-            localctx = lcParser.MacroContext(self, localctx)
+            localctx = lcParser.DefmacroContext(self, localctx)
             self.enterOuterAlt(localctx, 1)
             self.state = 38
             self.match(lcParser.Nombre)

@@ -352,12 +352,12 @@ public class lcParser extends Parser {
 			super.copyFrom(ctx);
 		}
 	}
-	public static class MacroContext extends CombContext {
+	public static class DefmacroContext extends CombContext {
 		public TerminalNode Nombre() { return getToken(lcParser.Nombre, 0); }
 		public ExprContext expr() {
 			return getRuleContext(ExprContext.class,0);
 		}
-		public MacroContext(CombContext ctx) { copyFrom(ctx); }
+		public DefmacroContext(CombContext ctx) { copyFrom(ctx); }
 	}
 
 	public final CombContext comb() throws RecognitionException {
@@ -365,7 +365,7 @@ public class lcParser extends Parser {
 		enterRule(_localctx, 6, RULE_comb);
 		int _la;
 		try {
-			_localctx = new MacroContext(_localctx);
+			_localctx = new DefmacroContext(_localctx);
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(38);

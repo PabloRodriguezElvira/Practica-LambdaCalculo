@@ -44,8 +44,8 @@ class lcVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by lcParser#macro.
-    def visitMacro(self, ctx:lcParser.MacroContext):
+    # Visit a parse tree produced by lcParser#defmacro.
+    def visitDefmacro(self, ctx:lcParser.DefmacroContext):
         return self.visitChildren(ctx)
 
 

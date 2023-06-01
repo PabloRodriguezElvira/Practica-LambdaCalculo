@@ -12,9 +12,10 @@ expr : '('expr')'                    # expresion
     ;
 
 vars : Var+;
+
 Var : [a-z];
 
-comb: Nombre ('≡'|'=') expr          # macro
+comb: Nombre ('≡'|'=') expr          # defmacro
     ;
 
 Nombre : [A-Z] [a-zA-Z0-9]*;
