@@ -11,19 +11,23 @@ from lcVisitor import lcVisitor
 class Variable:
     val: str
 
+
 @dataclass
 class Abstraccion:
     var: str
     term: ArbolLC
+
 
 @dataclass
 class Aplicacion:
     l: ArbolLC
     r: ArbolLC
 
+
 @dataclass
 class Vacio:
     pass
+
 
 ArbolLC = Variable | Abstraccion | Aplicacion | Vacio
 
@@ -32,11 +36,13 @@ ArbolLC = Variable | Abstraccion | Aplicacion | Vacio
 Macros = dict()
 
 # Visitor que construye el tipo algebraico Arbol
+
+
 class LCTreeVisitor(lcVisitor):
     def visitExpresion(self, ctx):
         [_, term, _] = list(ctx.getChildren())
-        return self.visit(term) 
-    
+        return self.visit(term)
+
     def visitAplicacion(self, ctx):
         [termino1, termino2] = list(ctx.getChildren())
         l = self.visit(termino1)
@@ -69,9 +75,17 @@ class LCTreeVisitor(lcVisitor):
         t = Macros[nameMacro.getText()]
         return t
 
+    def visitMacroinfija(self, ctx):
+        [term1, operator, term2] = list(ctx.getChildren())
+        t1 = self.visit(term1)
+        t2 = self.visit(term2)
+        # op = Macros[operator.getText()]
+        # return Aplicacion(op, Aplicacion(t1, t2))
+        return Aplicacion(t1, t2)
 
+        
 def printMacros():
-    for nombre,arbol in Macros.items():
+    for nombre, arbol in Macros.items():
         print(nombre, "≡", tree2str(arbol))
 
 
@@ -80,11 +94,11 @@ def tree2str(t: ArbolLC) -> str:
     arbol = ""
     match t:
         case Variable(val):
-            arbol += val
+                arbol += val
         case Abstraccion(var, term):
             arbol += "(" + "λ" + var + "."  + tree2str(term) + ")"
         case Aplicacion(termL, termR):
-            arbol += "(" + tree2str(termL) + tree2str(termR) + ")"
+                arbol += "(" + tree2str(termL) + tree2str(termR) + ")"
     return arbol
 
 
@@ -103,12 +117,12 @@ def getVariablesLigadas(tree):
 def getVariablesLibres(tree):
     s = set()
     varsLigadas = getVariablesLigadas(tree)
-    varsLibres = getVarsLibresRec(tree)
+    varsLibres = getVarsLibresPosiblesRec(tree)
     # Si nos encontramos alguna variable libre que también es ligada, entonces deja de ser libre. (Ejemplo 5 Tarea 3)
     return varsLibres - varsLigadas
 
 
-def getVarsLibresRec(tree):
+def getVarsLibresPosiblesRec(tree):
     s = set()
     match tree:
         case Variable(var):
@@ -140,14 +154,14 @@ def substitute(tree, v, nv):
 
     
 def alphaConversion(tl, tr):
-    ligadas = getVariablesLigadas(tl)
+    ligadasLeft = getVariablesLigadas(tl)
+    ligadasRight = getVariablesLigadas(tr)
     libres = getVariablesLibres(tr)
-    # print("Vars ligadas: ", ligadas)
-    # print("Vars libres: ", libres)
-    intersec = ligadas.intersection(libres)
+    intersec = ligadasLeft.intersection(libres)
     if len(intersec) != 0:
         var = list(intersec)[0]
-        newVar = getFreshVariable(ligadas)
+        # Para obtener una variable nueva, tenemos que tener en cuenta TODAS las variables ligadas.
+        newVar = getFreshVariable(ligadasLeft.union(ligadasRight))
         print("α-conversió: ", var, "->", newVar)
         tNew = substitute(tl, var, newVar)
         print(tree2str(tl), "->", tree2str(tNew)) 

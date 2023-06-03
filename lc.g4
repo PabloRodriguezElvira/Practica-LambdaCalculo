@@ -7,16 +7,19 @@ root : expr
 expr : '('expr')'                    # expresion
     | expr expr                      # aplicacion 
     | ('λ'|'\\') vars ('.') expr     # abstraccion 
+    | expr Op expr                   # macroinfija
     | Var                            # variable 
-    | Nombre                         # nombremacro
+    | (Nombre|Op)                    # nombremacro
     ;
 
 vars : Var+;
 
 Var : [a-z];
 
-comb: Nombre ('≡'|'=') expr          # defmacro
+comb: (Nombre|Op) ('≡'|'=') expr          # defmacro
     ;
+
+Op: ('+'|'-');
 
 Nombre : [A-Z] [a-zA-Z0-9]*;
 

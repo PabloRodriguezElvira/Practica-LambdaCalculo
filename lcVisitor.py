@@ -24,6 +24,11 @@ class lcVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by lcParser#macroinfija.
+    def visitMacroinfija(self, ctx:lcParser.MacroinfijaContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by lcParser#variable.
     def visitVariable(self, ctx:lcParser.VariableContext):
         return self.visitChildren(ctx)
