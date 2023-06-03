@@ -17,10 +17,10 @@ def serializedATN():
         48,0,10,1,0,0,0,2,24,1,0,0,0,4,37,1,0,0,0,6,41,1,0,0,0,8,11,3,2,
         1,0,9,11,3,6,3,0,10,8,1,0,0,0,10,9,1,0,0,0,11,1,1,0,0,0,12,13,6,
         1,-1,0,13,14,5,1,0,0,14,15,3,2,1,0,15,16,5,2,0,0,16,25,1,0,0,0,17,
-        18,7,0,0,0,18,19,3,4,2,0,19,20,5,5,0,0,20,21,3,2,1,4,21,25,1,0,0,
+        18,7,0,0,0,18,19,3,4,2,0,19,20,5,5,0,0,20,21,3,2,1,3,21,25,1,0,0,
         0,22,25,5,8,0,0,23,25,7,1,0,0,24,12,1,0,0,0,24,17,1,0,0,0,24,22,
-        1,0,0,0,24,23,1,0,0,0,25,33,1,0,0,0,26,27,10,5,0,0,27,32,3,2,1,6,
-        28,29,10,3,0,0,29,30,5,9,0,0,30,32,3,2,1,4,31,26,1,0,0,0,31,28,1,
+        1,0,0,0,24,23,1,0,0,0,25,33,1,0,0,0,26,27,10,5,0,0,27,28,5,9,0,0,
+        28,32,3,2,1,6,29,30,10,4,0,0,30,32,3,2,1,5,31,26,1,0,0,0,31,29,1,
         0,0,0,32,35,1,0,0,0,33,31,1,0,0,0,33,34,1,0,0,0,34,3,1,0,0,0,35,
         33,1,0,0,0,36,38,5,8,0,0,37,36,1,0,0,0,38,39,1,0,0,0,39,37,1,0,0,
         0,39,40,1,0,0,0,40,5,1,0,0,0,41,42,7,1,0,0,42,43,7,2,0,0,43,44,3,
@@ -302,7 +302,7 @@ class lcParser ( Parser ):
                 self.state = 19
                 self.match(lcParser.T__4)
                 self.state = 20
-                self.expr(4)
+                self.expr(3)
                 pass
             elif token in [8]:
                 localctx = lcParser.VariableContext(self, localctx)
@@ -339,27 +339,27 @@ class lcParser ( Parser ):
                     self._errHandler.sync(self)
                     la_ = self._interp.adaptivePredict(self._input,2,self._ctx)
                     if la_ == 1:
-                        localctx = lcParser.AplicacionContext(self, lcParser.ExprContext(self, _parentctx, _parentState))
+                        localctx = lcParser.MacroinfijaContext(self, lcParser.ExprContext(self, _parentctx, _parentState))
                         self.pushNewRecursionContext(localctx, _startState, self.RULE_expr)
                         self.state = 26
                         if not self.precpred(self._ctx, 5):
                             from antlr4.error.Errors import FailedPredicateException
                             raise FailedPredicateException(self, "self.precpred(self._ctx, 5)")
                         self.state = 27
+                        self.match(lcParser.Op)
+                        self.state = 28
                         self.expr(6)
                         pass
 
                     elif la_ == 2:
-                        localctx = lcParser.MacroinfijaContext(self, lcParser.ExprContext(self, _parentctx, _parentState))
+                        localctx = lcParser.AplicacionContext(self, lcParser.ExprContext(self, _parentctx, _parentState))
                         self.pushNewRecursionContext(localctx, _startState, self.RULE_expr)
-                        self.state = 28
-                        if not self.precpred(self._ctx, 3):
-                            from antlr4.error.Errors import FailedPredicateException
-                            raise FailedPredicateException(self, "self.precpred(self._ctx, 3)")
                         self.state = 29
-                        self.match(lcParser.Op)
+                        if not self.precpred(self._ctx, 4):
+                            from antlr4.error.Errors import FailedPredicateException
+                            raise FailedPredicateException(self, "self.precpred(self._ctx, 4)")
                         self.state = 30
-                        self.expr(4)
+                        self.expr(5)
                         pass
 
              
@@ -518,7 +518,7 @@ class lcParser ( Parser ):
          
 
             if predIndex == 1:
-                return self.precpred(self._ctx, 3)
+                return self.precpred(self._ctx, 4)
          
 
 

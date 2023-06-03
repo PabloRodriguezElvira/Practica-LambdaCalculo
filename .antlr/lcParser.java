@@ -248,7 +248,7 @@ public class lcParser extends Parser {
 				match(T__4);
 				}
 				setState(20);
-				expr(4);
+				expr(3);
 				}
 				break;
 			case Var:
@@ -295,24 +295,24 @@ public class lcParser extends Parser {
 					switch ( getInterpreter().adaptivePredict(_input,2,_ctx) ) {
 					case 1:
 						{
-						_localctx = new AplicacionContext(new ExprContext(_parentctx, _parentState));
+						_localctx = new MacroinfijaContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
 						setState(26);
 						if (!(precpred(_ctx, 5))) throw new FailedPredicateException(this, "precpred(_ctx, 5)");
 						setState(27);
+						match(Op);
+						setState(28);
 						expr(6);
 						}
 						break;
 					case 2:
 						{
-						_localctx = new MacroinfijaContext(new ExprContext(_parentctx, _parentState));
+						_localctx = new AplicacionContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
-						setState(28);
-						if (!(precpred(_ctx, 3))) throw new FailedPredicateException(this, "precpred(_ctx, 3)");
 						setState(29);
-						match(Op);
+						if (!(precpred(_ctx, 4))) throw new FailedPredicateException(this, "precpred(_ctx, 4)");
 						setState(30);
-						expr(4);
+						expr(5);
 						}
 						break;
 					}
@@ -455,7 +455,7 @@ public class lcParser extends Parser {
 		case 0:
 			return precpred(_ctx, 5);
 		case 1:
-			return precpred(_ctx, 3);
+			return precpred(_ctx, 4);
 		}
 		return true;
 	}
@@ -468,10 +468,10 @@ public class lcParser extends Parser {
 		"\5\6\3\2\13\f\3\2\b\t\2\62\2\f\3\2\2\2\4\32\3\2\2\2\6\'\3\2\2\2\b+\3\2"+
 		"\2\2\n\r\5\4\3\2\13\r\5\b\5\2\f\n\3\2\2\2\f\13\3\2\2\2\r\3\3\2\2\2\16"+
 		"\17\b\3\1\2\17\20\7\3\2\2\20\21\5\4\3\2\21\22\7\4\2\2\22\33\3\2\2\2\23"+
-		"\24\t\2\2\2\24\25\5\6\4\2\25\26\7\7\2\2\26\27\5\4\3\6\27\33\3\2\2\2\30"+
+		"\24\t\2\2\2\24\25\5\6\4\2\25\26\7\7\2\2\26\27\5\4\3\5\27\33\3\2\2\2\30"+
 		"\33\7\n\2\2\31\33\t\3\2\2\32\16\3\2\2\2\32\23\3\2\2\2\32\30\3\2\2\2\32"+
-		"\31\3\2\2\2\33#\3\2\2\2\34\35\f\7\2\2\35\"\5\4\3\b\36\37\f\5\2\2\37 \7"+
-		"\13\2\2 \"\5\4\3\6!\34\3\2\2\2!\36\3\2\2\2\"%\3\2\2\2#!\3\2\2\2#$\3\2"+
+		"\31\3\2\2\2\33#\3\2\2\2\34\35\f\7\2\2\35\36\7\13\2\2\36\"\5\4\3\b\37 "+
+		"\f\6\2\2 \"\5\4\3\7!\34\3\2\2\2!\37\3\2\2\2\"%\3\2\2\2#!\3\2\2\2#$\3\2"+
 		"\2\2$\5\3\2\2\2%#\3\2\2\2&(\7\n\2\2\'&\3\2\2\2()\3\2\2\2)\'\3\2\2\2)*"+
 		"\3\2\2\2*\7\3\2\2\2+,\t\3\2\2,-\t\4\2\2-.\5\4\3\2.\t\3\2\2\2\7\f\32!#"+
 		")";

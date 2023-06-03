@@ -79,11 +79,11 @@ class LCTreeVisitor(lcVisitor):
         [term1, operator, term2] = list(ctx.getChildren())
         t1 = self.visit(term1)
         t2 = self.visit(term2)
-        # op = Macros[operator.getText()]
-        # return Aplicacion(op, Aplicacion(t1, t2))
-        return Aplicacion(t1, t2)
+        op = Macros[operator.getText()]
+        return Aplicacion(Aplicacion(op, t1), t2)
 
-        
+
+
 def printMacros():
     for nombre, arbol in Macros.items():
         print(nombre, "≡", tree2str(arbol))
@@ -94,11 +94,11 @@ def tree2str(t: ArbolLC) -> str:
     arbol = ""
     match t:
         case Variable(val):
-                arbol += val
+            arbol += val
         case Abstraccion(var, term):
-            arbol += "(" + "λ" + var + "."  + tree2str(term) + ")"
+            arbol += "(" + "λ" + var + "." + tree2str(term) + ")"
         case Aplicacion(termL, termR):
-                arbol += "(" + tree2str(termL) + tree2str(termR) + ")"
+            arbol += "(" + tree2str(termL) + tree2str(termR) + ")"
     return arbol
 
 
@@ -133,7 +133,7 @@ def getVarsLibresPosiblesRec(tree):
             s.update(getVariablesLibres(t1))
             s.update(getVariablesLibres(t2))
     return s
-    
+
 
 def getFreshVariable(ligadas):
     abc = "abcdefghijklmnopqrstuvwxyz"
@@ -141,18 +141,19 @@ def getFreshVariable(ligadas):
     diff = abcSet - ligadas
     return list(diff)[0]
 
+
 def substitute(tree, v, nv):
     match tree:
         case Variable(_):
             return tree
         case Abstraccion(param, t):
-            if param == v: 
-                return Abstraccion(nv, substitute(t,v,nv))
-            return Abstraccion(param, substitute(t,v,nv))
+            if param == v:
+                return Abstraccion(nv, substitute(t, v, nv))
+            return Abstraccion(param, substitute(t, v, nv))
         case Aplicacion(t1, t2):
-            return Aplicacion(substitute(t1,v,nv), substitute(t2,v,nv))
+            return Aplicacion(substitute(t1, v, nv), substitute(t2, v, nv))
 
-    
+
 def alphaConversion(tl, tr):
     ligadasLeft = getVariablesLigadas(tl)
     ligadasRight = getVariablesLigadas(tr)
@@ -164,26 +165,28 @@ def alphaConversion(tl, tr):
         newVar = getFreshVariable(ligadasLeft.union(ligadasRight))
         print("α-conversió: ", var, "->", newVar)
         tNew = substitute(tl, var, newVar)
-        print(tree2str(tl), "->", tree2str(tNew)) 
-        return tNew 
+        print(tree2str(tl), "->", tree2str(tNew))
+        return tNew
     return Vacio()
 
 
 def beta_reduction(arbol):
-    maxDepth = 50;
-    counter = 1;
-    while True: 
+    maxDepth = 50
+    counter = 1
+    while True:
         # try-catch
         try:
-            res = evaluar(arbol, counter, maxDepth) 
+            res = evaluar(arbol, counter, maxDepth)
         except RecursionError:
             print("Resultat:\nNothing")
             return
         # Se puede cambiar la condicion y comprobar si los arboles son iguales modulo alpha conversion.
-        if len(tree2str(res)) == len(tree2str(arbol)): break
+        if len(tree2str(res)) == len(tree2str(arbol)):
+            break
         arbol = res
     print("Resultat:")
     print(tree2str(res))
+
 
 def evaluar(tree: ArbolLC, c, md) -> ArbolLC:
     match tree:
@@ -205,8 +208,9 @@ def evaluar(tree: ArbolLC, c, md) -> ArbolLC:
                     tSub = applyBetaRed(p, t, termRight)
                     c = c+1
                     # Si llegamos al máximo número de beta-reducciones tiramos la excepcion.
-                    if c == md: raise RecursionError
-                    print("β-reducció:")  
+                    if c == md:
+                        raise RecursionError
+                    print("β-reducció:")
                     print(tree2str(tOld), "->", tree2str(tSub))
                     return evaluar(tSub, c, md)
                 case _:
@@ -214,23 +218,23 @@ def evaluar(tree: ArbolLC, c, md) -> ArbolLC:
                     r = evaluar(termRight, c, md)
                     return Aplicacion(l, r)
 
+
 def applyBetaRed(param, tree: ArbolLC, sub: ArbolLC) -> ArbolLC:
     match tree:
         case Variable(val):
-            if (val == param): 
+            if (val == param):
                 return sub
             else:
                 return tree
         case Aplicacion(left, right):
-            newl = applyBetaRed(param, left, sub) 
-            newr = applyBetaRed(param, right, sub) 
+            newl = applyBetaRed(param, left, sub)
+            newr = applyBetaRed(param, right, sub)
             return Aplicacion(newl, newr)
         case Abstraccion(var, term):
-            newt = applyBetaRed(param, term, sub)  
+            newt = applyBetaRed(param, term, sub)
             return Abstraccion(var, newt)
 
 
-       
 while True:
     input_stream = InputStream(input('? '))
     lexer = lcLexer(input_stream)
@@ -245,7 +249,7 @@ while True:
             printMacros()
         else:
             print("Arbre:")
-            print(tree2str(arbol)) 
+            print(tree2str(arbol))
             beta_reduction(arbol)
     else:
         print(parser.getNumberOfSyntaxErrors(), 'errors de sintaxi.')

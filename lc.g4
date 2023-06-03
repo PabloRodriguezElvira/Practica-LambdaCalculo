@@ -5,9 +5,9 @@ root : expr
     ;
 
 expr : '('expr')'                    # expresion
+    | expr Op expr                   # macroinfija
     | expr expr                      # aplicacion 
     | ('λ'|'\\') vars ('.') expr     # abstraccion 
-    | expr Op expr                   # macroinfija
     | Var                            # variable 
     | (Nombre|Op)                    # nombremacro
     ;
