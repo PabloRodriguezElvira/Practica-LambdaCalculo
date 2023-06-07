@@ -19,8 +19,8 @@ Var : [a-z];
 comb: (Nombre|Op) ('≡'|'=') expr          # defmacro
     ;
 
-Op: ('+'|'-');
+Op: ('+'|'-'|'*'|'/');
 
-Nombre : [A-Z] [a-zA-Z0-9]*;
+Nombre : [A-Z] [A-Z0-9]*;
 
 WS : [ \t\n\r]+ -> skip;
