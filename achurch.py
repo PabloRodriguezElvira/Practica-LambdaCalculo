@@ -6,6 +6,7 @@ from lcParser import lcParser
 from lcVisitor import lcVisitor
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
+import pydot
 
 # Árbol semántico que representa las expresiones en cálculo lambda.
 @dataclass
@@ -249,6 +250,54 @@ def applyBetaRed(param, tree: ArbolLC, sub: ArbolLC) -> ArbolLC:
             return Abstraccion(var, newt)
 
 
+def getTipoNodo(tree: ArbolLC):
+    match tree:
+        case Variable(var):
+            return pydot.Node(var, penwidth=0)
+        case Aplicacion(_,_):
+            return pydot.Node("@", penwidth=0)
+        case Abstraccion(param,_):
+            return pydot.Node("λ" + param, penwidth=0)
+
+
+def crearGrafoRec(tree: ArbolLC, graph, parent=Vacio()):
+    # Crear nodo raiz:
+    nodoRaiz = getTipoNodo(tree)
+    graph.add_node(nodoRaiz)
+
+    # Crear arista con el nodo parent (si no es Vacio):
+    if (parent != Vacio()):
+        nodoParent = getTipoNodo(parent)
+        # Si el padre es una abstracción y el hijo es una variable, posiblemente hay que unirlas
+        # con un tipo de arista diferente.
+        if isinstance(parent, Abstraccion) and isinstance(tree, Variable):
+            if parent.var == tree.val:
+                print("holaguenas")
+                aristaAbs = pydot.Edge(nodoRaiz, nodoParent, style="dashed", color="magenta")
+                graph.add_edge(aristaAbs)
+        arista = pydot.Edge(nodoParent, nodoRaiz)
+        graph.add_edge(arista)
+
+    # Llamar recursivamente:
+    match tree:
+        case Aplicacion(t1, t2):
+            crearGrafoRec(t1, graph, tree)
+            crearGrafoRec(t2, graph, tree)
+        case Abstraccion(_, term):
+            crearGrafoRec(term, graph, tree)
+
+
+def crearGrafo(tree: ArbolLC, option):
+    graph = pydot.Dot(graph_type='digraph')
+    crearGrafoRec(tree, graph)
+
+    # Guardar el gráfico en un archivo
+    if option == 0:
+        graph.write_png('grafoInicial.png')
+    else:
+        graph.write_png('grafoFinal.png')
+
+
 # TELEGRAM BOT (usa la versión de python-telegram-bot 20.3) --------------------------------
 
 # Función para /start
@@ -287,20 +336,26 @@ async def visitExpresion(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     if parser.getNumberOfSyntaxErrors() == 0:
         visitor = LCTreeVisitor()
         arbol = visitor.visit(tree)
-        listaBetasAlfas = list()
+        grafoInicial = crearGrafo(arbol, 0)
         if (arbol == "defmacro"):
             macros = True
         else:
             print("Arbre:")
-            listaBetasAlfas.append(tree2str(arbol))
-            listaBetasAlfas = listaBetasAlfas + beta_reduction(arbol)
+            listaBetasAlfas = beta_reduction(arbol)
+            # grafoResultado = crearGrafo()
     else:
         print(parser.getNumberOfSyntaxErrors(), 'errors de sintaxi.')
         print(tree.toStringTree(recog=parser))
 
     if (not macros):
+        # Mostrar el árbol inicial:
+        await update.message.reply_text(tree2str(arbol))
+        # Mostrar grafo del árbol inicial:
+        # Mostrar lista de beta-reducciones/alfa-conversiones:
         for elem in listaBetasAlfas:
             await update.message.reply_text(elem) 
+        # Mostrar grafo del árbol final:
+
 
 
 async def macros(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -308,7 +363,6 @@ async def macros(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     str = ""
     if (len(Macros) != 0):
         for nombre, arbol in Macros.items():
-            # await update.message.reply_text(nombre + " ≡ " + tree2str(arbol))
             str += (nombre + " ≡ " + tree2str(arbol) + "\n")
     else:
         str = "No hay macros definidas en el sistema."
@@ -331,6 +385,8 @@ def ejecutarTerminal():
             else:
                 print("Arbre:")
                 print(tree2str(arbol))
+                
+              
                 beta_reduction(arbol)
         else:
             print(parser.getNumberOfSyntaxErrors(), 'errors de sintaxi.')
