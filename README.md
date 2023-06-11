@@ -5,7 +5,8 @@ En esta práctica de LP se ha realizado un evaluador de expresiones en λ-cálcu
 # Instalación
 
 Se necesita python-telegram-bot versión 20.3. El bot de Telegram se ha hecho con esta versión.
-```bash pip install python-telegram-bot --upgrade 
+```bash 
+pip install python-telegram-bot --upgrade 
 ```
 
 # Uso
