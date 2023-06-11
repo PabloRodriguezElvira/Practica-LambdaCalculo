@@ -25,6 +25,7 @@ class Aplicacion:
     l: ArbolLC
     r: ArbolLC
 
+
 @dataclass
 class Vacio:
     pass
@@ -38,12 +39,12 @@ class MaxBetasReached(Exception):
     "Se lanza cuando se alcanza el número máximo de betareducciones."
     pass
 
+
 # Diccionario para guardar macros (Tasca 4)
 # {string, ArbolLC}
 Macros = dict()
 
-# Visitor que construye el tipo algebraico Arbol
-
+# Clase visitor que construye el tipo algebraico ArbolLC
 class LCTreeVisitor(lcVisitor):
     def visitExpresion(self, ctx):
         [_, term, _] = list(ctx.getChildren())
@@ -89,13 +90,13 @@ class LCTreeVisitor(lcVisitor):
         return Aplicacion(Aplicacion(op, t1), t2)
 
 
-
+# Imprime el diccionario de macros.
 def printMacros():
     for nombre, arbol in Macros.items():
         print(nombre, "≡", tree2str(arbol))
 
 
-# Función que imprime el árbol por pantalla:
+# Pasa el árbol de tipo ArbolLC a string.
 def tree2str(t: ArbolLC) -> str:
     arbol = ""
     match t:
@@ -107,8 +108,8 @@ def tree2str(t: ArbolLC) -> str:
             arbol += "(" + tree2str(termL) + tree2str(termR) + ")"
     return arbol
 
-
-def getVariablesLigadas(tree):
+# Obtiene el conjunto de variables ligadas del árbol tree. 
+def getVariablesLigadas(tree: ArbolLC) -> set:
     s = set()
     match tree:
         case Abstraccion(param, term):
@@ -119,14 +120,15 @@ def getVariablesLigadas(tree):
             s.update(getVariablesLigadas(t2))
     return s
 
-def getVariablesLibres(tree):
-    s = set()
+# Obtiene el conjunto de variables libres del árbol tree.
+def getVariablesLibres(tree) -> set:
     varsLigadas = getVariablesLigadas(tree)
     varsLibres = getVarsLibresPosiblesRec(tree)
     # Si nos encontramos alguna variable libre que también es ligada, entonces deja de ser libre. (Ejemplo 5 Tarea 3)
     return varsLibres - varsLigadas
 
-def getVarsLibresPosiblesRec(tree):
+# Obtiene las variables (en general) del árbol tree.
+def getVarsLibresPosiblesRec(tree: ArbolLC) -> set:
     s = set()
     match tree:
         case Variable(var):
@@ -138,15 +140,15 @@ def getVarsLibresPosiblesRec(tree):
             s.update(getVariablesLibres(t2))
     return s
 
-
-def getFreshVariable(ligadas):
+# Devuelve una variable no usada en el árbol.
+def getFreshVariable(ligadas: set) -> str:
     abc = "abcdefghijklmnopqrstuvwxyz"
     abcSet = set(abc)
     diff = abcSet - ligadas
     return list(diff)[0]
 
-
-def substitute(tree, v, nv):
+# Sustituye en el ArbolLC tree las apariciones de la variable v por nv.
+def substitute(tree: ArbolLC, v: str, nv: str) -> ArbolLC:
     match tree:
         case Variable(var):
             if var == v:
@@ -160,8 +162,9 @@ def substitute(tree, v, nv):
         case Aplicacion(t1, t2):
             return Aplicacion(substitute(t1, v, nv), substitute(t2, v, nv))
 
-
-def alphaConversion(tl, tr, lista):
+# Realiza una alfa-conversión en el árbol formado por tl y tr. Si no quedan
+# posibles alfa-conversiones, se retorna el arbol vacío.
+def alphaConversion(tl: ArbolLC, tr: ArbolLC, lista: list) -> ArbolLC:
     ligadasLeft = getVariablesLigadas(tl)
     ligadasRight = getVariablesLigadas(tr)
     libresRight = getVariablesLibres(tr)
@@ -177,31 +180,31 @@ def alphaConversion(tl, tr, lista):
         return tNew
     return Vacio()
 
-
-def beta_reduction(arbol):
+# Realiza beta-reducciones hasta que el árbol obtenido no cambie (o hasta que se llegue al límite
+# de beta-reducciones.) Retorna la lista que usaremos para mostrar en el bot y el último árbol evaluado.
+def beta_reduction(arbol: ArbolLC) -> tuple:
     # En l almacenaremos las beta-reducciones y alfa-conversiones para después mostrarlas en el bot.
     l = list()
     maxDepth = 50
     counter = 1
     while True:
-        # try-catch
         try:
             res = evaluar(arbol, counter, maxDepth, l)
         except MaxBetasReached:
             print("Resultat:\nNothing")
             l.append("Nothing")
-            return l
-        # Se puede cambiar la condicion y comprobar si los arboles son iguales modulo alpha conversion.
+            return l, Vacio()
         if len(tree2str(res)) == len(tree2str(arbol)):
             break
         arbol = res
     print("Resultat:")
     print(tree2str(res))
     l.append(tree2str(res))
-    return l
+    return l, res
 
-
-def evaluar(tree: ArbolLC, c, md, lista) -> ArbolLC:
+# Función recursiva encargada de encontrar una beta-reducción y aplicarla.
+# Justo antes de aplicarla hemos de comprobar si se puede aplicar una alfa-conversión.
+def evaluar(tree: ArbolLC, c: int, md: int, lista: list) -> ArbolLC:
     match tree:
         case Variable(_):
             return tree
@@ -223,9 +226,9 @@ def evaluar(tree: ArbolLC, c, md, lista) -> ArbolLC:
                     c = c+1
                     # Si llegamos al máximo número de beta-reducciones tiramos la excepcion custom.
                     if c == md:
-                        raise MaxBetasReached 
+                        raise MaxBetasReached
                     print("β-reducció:")
-                    lista.append(tree2str(tOld) + "→ β →" + tree2str(tSub)) 
+                    lista.append(tree2str(tOld) + "→ β →" + tree2str(tSub))
                     print(tree2str(tOld), "→", tree2str(tSub))
                     return evaluar(tSub, c, md, lista)
                 case _:
@@ -233,8 +236,9 @@ def evaluar(tree: ArbolLC, c, md, lista) -> ArbolLC:
                     r = evaluar(termRight, c, md, lista)
                     return Aplicacion(l, r)
 
-
-def applyBetaRed(param, tree: ArbolLC, sub: ArbolLC) -> ArbolLC:
+# Función encargada de aplicar una beta-reducción, es decir, sustituir las aparciciones de
+# param en tree por sub.
+def applyBetaRed(param: str, tree: ArbolLC, sub: ArbolLC) -> ArbolLC:
     match tree:
         case Variable(val):
             if (val == param):
@@ -250,46 +254,55 @@ def applyBetaRed(param, tree: ArbolLC, sub: ArbolLC) -> ArbolLC:
             return Abstraccion(var, newt)
 
 
-def getTipoNodo(tree: ArbolLC):
+# TELEGRAM BOT t.me/LambdaUltraBot (usa la versión de python-telegram-bot 20.3) --------------------------------
+
+# Función recursiva encargada de generar el grafo. La idea detrás de esta función es que cada nodo
+# ha de tener un identificador único, por eso tenemos un parámetro path que vamos actualizando
+# en cada case. Con este identificador vamos creando los nodos y añadiendo las aristas que tocan al grafo
+# (parámetro graph)
+def crearGrafoRec(tree: ArbolLC, path: str, graph) -> str:
     match tree:
-        case Variable(var):
-            return pydot.Node(var, penwidth=0)
-        case Aplicacion(_,_):
-            return pydot.Node("@", penwidth=0)
-        case Abstraccion(param,_):
-            return pydot.Node("λ" + param, penwidth=0)
+        case Abstraccion(var, term):
+            path_child = path + var
+            nodo = pydot.Node(path_child, label="λ"+var, penwidth=0)
+            graph.add_node(nodo)
+            graph.add_edge(pydot.Edge(
+                path_child, crearGrafoRec(term, path_child, graph)))
+            return path_child
 
-
-def crearGrafoRec(tree: ArbolLC, graph, parent=Vacio()):
-    # Crear nodo raiz:
-    nodoRaiz = getTipoNodo(tree)
-    graph.add_node(nodoRaiz)
-
-    # Crear arista con el nodo parent (si no es Vacio):
-    if (parent != Vacio()):
-        nodoParent = getTipoNodo(parent)
-        # Si el padre es una abstracción y el hijo es una variable, posiblemente hay que unirlas
-        # con un tipo de arista diferente.
-        if isinstance(parent, Abstraccion) and isinstance(tree, Variable):
-            if parent.var == tree.val:
-                print("holaguenas")
-                aristaAbs = pydot.Edge(nodoRaiz, nodoParent, style="dashed", color="magenta")
-                graph.add_edge(aristaAbs)
-        arista = pydot.Edge(nodoParent, nodoRaiz)
-        graph.add_edge(arista)
-
-    # Llamar recursivamente:
-    match tree:
         case Aplicacion(t1, t2):
-            crearGrafoRec(t1, graph, tree)
-            crearGrafoRec(t2, graph, tree)
-        case Abstraccion(_, term):
-            crearGrafoRec(term, graph, tree)
+            path_child = path + "@"
+            nodo = pydot.Node(path_child, label="@", penwidth=0)
+            graph.add_node(nodo)
+            # Añadimos 1 o 2 a los hijos izquierdo y derecho para diferenciarlos. (cada árbol ha de tener un id diferente)
+            graph.add_edge(pydot.Edge(
+                path_child, crearGrafoRec(t1, path_child+"1", graph)))
+            graph.add_edge(pydot.Edge(
+                path_child, crearGrafoRec(t2, path_child+"2", graph)))
+            return path_child
+
+        case Variable(var):
+            # Añadimos "|" para indicar final de path.
+            path_child = path + "|"
+            nodo = pydot.Node(path_child, label=var, penwidth=0)
+            graph.add_node(nodo)
+            # Comprobamos si la variable aparece en el path. Si aparece, significa que hay una abstracción que
+            # tiene parámetro igual a dicha variable. Tenemos que encontrar la posición de la última aparición de esta variable,
+            # ya que el camino desde el principio hasta esa posición es el id de la abstracción con la que la queremos ligar.
+            # rfind se encarga de encontrar la última aparición de la variable en el path.
+            lastPos = path_child.rfind(var)
+            if lastPos != -1:
+                id_abstr = path_child[:lastPos+1]
+                graph.add_edge(pydot.Edge(path_child, id_abstr,
+                               style="dashed", color="magenta"))
+            return path_child
 
 
-def crearGrafo(tree: ArbolLC, option):
+# Se encarga de llamar a la función recursiva de creación del grafo y guardarlo en un archivo.
+def crearGrafo(tree: ArbolLC, option: int):
     graph = pydot.Dot(graph_type='digraph')
-    crearGrafoRec(tree, graph)
+    path = ""
+    crearGrafoRec(tree, path, graph)
 
     # Guardar el gráfico en un archivo
     if option == 0:
@@ -298,34 +311,32 @@ def crearGrafo(tree: ArbolLC, option):
         graph.write_png('grafoFinal.png')
 
 
-# TELEGRAM BOT (usa la versión de python-telegram-bot 20.3) --------------------------------
+# FUNCIONES PARA LOS COMANDOS DEL BOT ------------------------
 
-# Función para /start
+# Función para /start. Da un mensaje de bienvenida.
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    "Manda un mensaje cuando se escribe el comando /start y se instancia el visitor."
     user = update.effective_user
     message = "Muy buenas %s!\nSoy LambdaUltraBot!" % (user.mention_html())
     await update.message.reply_html(message)
-        
 
-# Función para /author
+
+# Función para /author. Muestra el autor del bot.
 async def author(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    "Muestra el autor del bot."
     s = "@ Pablo Rodríguez Elvira - 2023"
     await update.message.reply_text(s)
 
-# Función para /help
+# Función para /help. Muestra los comandos y una breve explicación de cada uno.
 async def ayuda(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    "Muestra los comandos disponibles y su función."
     s1 = "/start -> Manda un mensaje de saludo.\n"
     s2 = "/author -> Muestra el autor del bot.\n"
     s3 = "/help -> Muestra los comandos disponibles.\n"
-    s4 = "/macros -> Muestra el listado de macros que se han definido."
-    await update.message.reply_text(s1+s2+s3+s4)
+    s4 = "/macros -> Muestra el listado de macros que se han definido.\n"
+    s5 = "El bot evaluará expresiones en λ-cálculo con sintaxis correcta."
+    await update.message.reply_text(s1+s2+s3+s4+s5)
 
 
+# Función para visitar expresiones o definir macros.
 async def visitExpresion(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    "Si el usuario nos manda una expresión, la evaluamos."
     input_stream = InputStream(update.message.text)
     lexer = lcLexer(input_stream)
     token_stream = CommonTokenStream(lexer)
@@ -336,13 +347,14 @@ async def visitExpresion(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     if parser.getNumberOfSyntaxErrors() == 0:
         visitor = LCTreeVisitor()
         arbol = visitor.visit(tree)
-        grafoInicial = crearGrafo(arbol, 0)
         if (arbol == "defmacro"):
             macros = True
         else:
-            print("Arbre:")
-            listaBetasAlfas = beta_reduction(arbol)
-            # grafoResultado = crearGrafo()
+            listaBetasAlfas, ultimoArbol = beta_reduction(arbol)
+            # Grafo del árbol inicial:
+            crearGrafo(arbol, 0)
+            # Grafo del árbol resultado:
+            crearGrafo(ultimoArbol, 1)
     else:
         print(parser.getNumberOfSyntaxErrors(), 'errors de sintaxi.')
         print(tree.toStringTree(recog=parser))
@@ -351,15 +363,16 @@ async def visitExpresion(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         # Mostrar el árbol inicial:
         await update.message.reply_text(tree2str(arbol))
         # Mostrar grafo del árbol inicial:
+        await update.message.reply_photo("grafoInicial.png")
         # Mostrar lista de beta-reducciones/alfa-conversiones:
         for elem in listaBetasAlfas:
-            await update.message.reply_text(elem) 
-        # Mostrar grafo del árbol final:
+            await update.message.reply_text(elem)
+        # Mostrar grafo del árbol final (si no es Vacio)
+        if ultimoArbol != Vacio():
+            await update.message.reply_photo("grafoFinal.png")
 
-
-
+# Función para /macros. Se encarga de mostrar el diccionario de macros.
 async def macros(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    "Se encarga de mostrar el diccionario de macros." 
     str = ""
     if (len(Macros) != 0):
         for nombre, arbol in Macros.items():
@@ -369,6 +382,9 @@ async def macros(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(str)
 
 
+# PROGRAMA PRINCIPAL ----------------------------------------------
+
+# Se usa la terminal para evaluar expresiones.
 def ejecutarTerminal():
     while True:
         input_stream = InputStream(input('? '))
@@ -385,17 +401,16 @@ def ejecutarTerminal():
             else:
                 print("Arbre:")
                 print(tree2str(arbol))
-                
-              
                 beta_reduction(arbol)
         else:
             print(parser.getNumberOfSyntaxErrors(), 'errors de sintaxi.')
             print(tree.toStringTree(recog=parser))
 
-
+# Se usa el bot en vez de la terminal.
 def ejecutarBot():
     # Creamos el bot con nuestro token:
-    application = Application.builder().token("6097810236:AAEMnMIKrJLxYWdHMBU1GNW1bEdyQRukZ7U").build()
+    application = Application.builder().token(
+        "6097810236:AAEMnMIKrJLxYWdHMBU1GNW1bEdyQRukZ7U").build()
 
     # Añadimos los handlers para comandos:
     application.add_handler(CommandHandler("start", start))
@@ -404,25 +419,25 @@ def ejecutarBot():
     application.add_handler(CommandHandler("macros", macros))
 
     # Añadimos el handler para no comandos (visitar expresiones)
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, visitExpresion))
+    application.add_handler(MessageHandler(
+        filters.TEXT & ~filters.COMMAND, visitExpresion))
 
     # Correr el bot:
     application.run_polling()
 
-
-def main(): 
+# Programa principal. Pregunta al usuario si quiere usar la terminal o el bot de Telegram.
+def main():
     b = True
     while b:
         print("Escribe 0 para usar la terminal, 1 para usar el Bot de Telegram.")
         option = input()
         if option == "0":
             ejecutarTerminal()
-            b = False 
+            b = False
         elif option == "1":
             ejecutarBot()
             b = False
 
 
-if __name__  == "__main__":
+if __name__ == "__main__":
     main()
-
