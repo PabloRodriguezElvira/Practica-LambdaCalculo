@@ -9,6 +9,8 @@ from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandl
 import pydot
 
 # Árbol semántico que representa las expresiones en cálculo lambda.
+
+
 @dataclass
 class Variable:
     val: str
@@ -45,6 +47,8 @@ class MaxBetasReached(Exception):
 Macros = dict()
 
 # Clase visitor que construye el tipo algebraico ArbolLC
+
+
 class LCTreeVisitor(lcVisitor):
     def visitExpresion(self, ctx):
         [_, term, _] = list(ctx.getChildren())
@@ -108,7 +112,9 @@ def tree2str(t: ArbolLC) -> str:
             arbol += "(" + tree2str(termL) + tree2str(termR) + ")"
     return arbol
 
-# Obtiene el conjunto de variables ligadas del árbol tree. 
+# Obtiene el conjunto de variables ligadas del árbol tree.
+
+
 def getVariablesLigadas(tree: ArbolLC) -> set:
     s = set()
     match tree:
@@ -121,6 +127,8 @@ def getVariablesLigadas(tree: ArbolLC) -> set:
     return s
 
 # Obtiene el conjunto de variables libres del árbol tree.
+
+
 def getVariablesLibres(tree) -> set:
     varsLigadas = getVariablesLigadas(tree)
     varsLibres = getVarsLibresPosiblesRec(tree)
@@ -128,6 +136,8 @@ def getVariablesLibres(tree) -> set:
     return varsLibres - varsLigadas
 
 # Obtiene las variables (en general) del árbol tree.
+
+
 def getVarsLibresPosiblesRec(tree: ArbolLC) -> set:
     s = set()
     match tree:
@@ -141,6 +151,8 @@ def getVarsLibresPosiblesRec(tree: ArbolLC) -> set:
     return s
 
 # Devuelve una variable no usada en el árbol.
+
+
 def getFreshVariable(ligadas: set) -> str:
     abc = "abcdefghijklmnopqrstuvwxyz"
     abcSet = set(abc)
@@ -148,6 +160,8 @@ def getFreshVariable(ligadas: set) -> str:
     return list(diff)[0]
 
 # Sustituye en el ArbolLC tree las apariciones de la variable v por nv.
+
+
 def substitute(tree: ArbolLC, v: str, nv: str) -> ArbolLC:
     match tree:
         case Variable(var):
@@ -164,6 +178,8 @@ def substitute(tree: ArbolLC, v: str, nv: str) -> ArbolLC:
 
 # Realiza una alfa-conversión en el árbol formado por tl y tr. Si no quedan
 # posibles alfa-conversiones, se retorna el arbol vacío.
+
+
 def alphaConversion(tl: ArbolLC, tr: ArbolLC, lista: list) -> ArbolLC:
     ligadasLeft = getVariablesLigadas(tl)
     ligadasRight = getVariablesLigadas(tr)
@@ -182,6 +198,8 @@ def alphaConversion(tl: ArbolLC, tr: ArbolLC, lista: list) -> ArbolLC:
 
 # Realiza beta-reducciones hasta que el árbol obtenido no cambie (o hasta que se llegue al límite
 # de beta-reducciones.) Retorna la lista que usaremos para mostrar en el bot y el último árbol evaluado.
+
+
 def beta_reduction(arbol: ArbolLC) -> tuple:
     # En l almacenaremos las beta-reducciones y alfa-conversiones para después mostrarlas en el bot.
     l = list()
@@ -204,6 +222,8 @@ def beta_reduction(arbol: ArbolLC) -> tuple:
 
 # Función recursiva encargada de encontrar una beta-reducción y aplicarla.
 # Justo antes de aplicarla hemos de comprobar si se puede aplicar una alfa-conversión.
+
+
 def evaluar(tree: ArbolLC, c: int, md: int, lista: list) -> ArbolLC:
     match tree:
         case Variable(_):
@@ -238,6 +258,8 @@ def evaluar(tree: ArbolLC, c: int, md: int, lista: list) -> ArbolLC:
 
 # Función encargada de aplicar una beta-reducción, es decir, sustituir las aparciciones de
 # param en tree por sub.
+
+
 def applyBetaRed(param: str, tree: ArbolLC, sub: ArbolLC) -> ArbolLC:
     match tree:
         case Variable(val):
@@ -326,6 +348,8 @@ async def author(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(s)
 
 # Función para /help. Muestra los comandos y una breve explicación de cada uno.
+
+
 async def ayuda(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     s1 = "/start -> Manda un mensaje de saludo.\n"
     s2 = "/author -> Muestra el autor del bot.\n"
@@ -372,6 +396,8 @@ async def visitExpresion(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
             await update.message.reply_photo("grafoFinal.png")
 
 # Función para /macros. Se encarga de mostrar el diccionario de macros.
+
+
 async def macros(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     str = ""
     if (len(Macros) != 0):
@@ -407,6 +433,8 @@ def ejecutarTerminal():
             print(tree.toStringTree(recog=parser))
 
 # Se usa el bot en vez de la terminal.
+
+
 def ejecutarBot():
     # Creamos el bot con nuestro token:
     application = Application.builder().token(
@@ -426,6 +454,8 @@ def ejecutarBot():
     application.run_polling()
 
 # Programa principal. Pregunta al usuario si quiere usar la terminal o el bot de Telegram.
+
+
 def main():
     b = True
     while b:
